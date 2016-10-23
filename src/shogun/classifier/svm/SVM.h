@@ -164,7 +164,7 @@ class CSVM : public CKernelMachine
 		 *
 		 * @return C2
 		 */
-		inline float64_t get_C2() { return C2; }
+		inline float64_t get_C2() { return ignoreC2 ? C1 : C2; }
 
 		/** get qpsize
 		 *
@@ -188,6 +188,24 @@ class CSVM : public CKernelMachine
 		inline bool get_shrinking_enabled()
 		{
 			return use_shrinking;
+		}
+
+		/** set state of C2 C1 sync
+		 *
+		 * @param enable for C2 sync with C1
+		 */
+		inline void set_ignore_C2(bool enable)
+		{
+			ignoreC2=enable;
+		}
+
+		/** get state of C2 C1 sync
+		 *
+		 * @return if C2 is synced with C1
+		 */
+		inline bool set_ignore_C2()
+		{
+			return ignoreC2;
 		}
 
 		/** compute svm dual objective
@@ -263,6 +281,8 @@ class CSVM : public CKernelMachine
 		int32_t qpsize;
 		/** if shrinking shall be used */
 		bool use_shrinking;
+		/** sync C2 with C1 */
+		bool ignoreC2;
 
 		/** callback function svm optimizers may call when they have a new
 		 * (small) set of alphas */
