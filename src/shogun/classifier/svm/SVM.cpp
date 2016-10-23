@@ -76,6 +76,7 @@ void CSVM::set_defaults(int32_t num_sv)
 	qpsize=41;
 	use_bias=true;
 	use_shrinking=true;
+	ignoreC2=false;
 	use_batch_computation=true;
 	use_linadd=true;
 
