@@ -31,7 +31,7 @@ CGridSearchModelSelection::~CGridSearchModelSelection()
 {
 }
 
-CParameterCombination* CGridSearchModelSelection::select_model(bool print_state)
+CParameterCombination* CGridSearchModelSelection::select_model(bool print_state, std::function<void(CMachine *,CCrossValidationResult *, int64_t, int64_t)> print_func)
 {
 	if (print_state)
 		SG_PRINT("Generating parameter combinations\n")
@@ -82,6 +82,10 @@ CParameterCombination* CGridSearchModelSelection::select_model(bool print_state)
 
 		if (print_state)
 			result->print_result();
+
+		/* Call functor that handles advanced printing of all evaluation results */
+		if (print_func)
+			print_func(machine, result, i, combinations->get_num_elements());
 
 		/* check if current result is better, delete old combinations */
 		if (m_machine_eval->get_evaluation_direction()==ED_MAXIMIZE)
@@ -136,4 +140,9 @@ CParameterCombination* CGridSearchModelSelection::select_model(bool print_state)
 	SG_UNREF(combinations);
 
 	return best_combination;
+}
+
+CParameterCombination* CGridSearchModelSelection::select_model(bool print_state)
+{
+    return select_model(print_state, {});
 }
