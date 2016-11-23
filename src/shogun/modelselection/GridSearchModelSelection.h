@@ -11,10 +11,13 @@
 #ifndef __GRIDSEARCHMODELSELECTION_H_
 #define __GRIDSEARCHMODELSELECTION_H_
 
+#include <functional>
+
 #include <shogun/lib/config.h>
 
 #include <shogun/modelselection/ModelSelection.h>
 #include <shogun/base/DynArray.h>
+#include <shogun/evaluation/CrossValidation.h>
 
 namespace shogun
 {
@@ -46,6 +49,7 @@ public:
 	 *
 	 * @return best combination of model parameters
 	 */
+	virtual CParameterCombination* select_model(bool print_state, std::function<void(CMachine *, CCrossValidationResult *, int64_t, int64_t)> print_func);
 	virtual CParameterCombination* select_model(bool print_state=false);
 
 	/** @return name of the SGSerializable */
