@@ -230,6 +230,8 @@ public:
 
 	void compute_Q_parallel(Qfloat* data, float64_t* lab, int32_t i, int32_t start, int32_t len) const
 	{
+            if (sg_parallel->libsvmkernel__compute_q_parallel_parallel_enabled())
+            {
 		if (lab) // two class
 		{
 			#pragma omp parallel for
@@ -242,6 +244,20 @@ public:
 			for(int32_t j=start;j<len;j++)
 				data[j] = (Qfloat) this->kernel_function(i,j);
 		}
+            }
+            else
+            {
+		if (lab) // two class
+		{
+			for(int32_t j=start;j<len;j++)
+				data[j] = (Qfloat) lab[i]*lab[j]*this->kernel_function(i,j);
+		}
+		else // one class, eps svr
+		{
+			for(int32_t j=start;j<len;j++)
+				data[j] = (Qfloat) this->kernel_function(i,j);
+		}
+            }
 	}
 
 	inline float64_t kernel_function(int32_t i, int32_t j) const

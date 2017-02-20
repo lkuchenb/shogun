@@ -1331,7 +1331,7 @@ SGMatrix<T> CKernel::get_kernel_matrix()
 
 	result=SG_MALLOC(T, total_num);
 
-	int32_t num_threads=parallel->get_num_threads();
+	int32_t num_threads= parallel->ckernel__get_kernel_matrix_parallel_enabled() ? parallel->get_num_threads() : 1;
 	K_THREAD_PARAM<T> params;
 	int64_t step = total_num/num_threads;
 	index_t t = 0;

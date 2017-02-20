@@ -33,6 +33,8 @@ using namespace shogun;
 Parallel::Parallel()
 {
 	num_threads=get_num_cpus();
+        ckernel__get_kernel_matrix_parallel = true;
+        libsvmkernel__compute_q_parallel_parallel = true;
 	m_refcount = new RefCount();
 #ifdef HAVE_OPENMP
 	omp_set_dynamic(0);
@@ -43,6 +45,9 @@ Parallel::Parallel()
 Parallel::Parallel(const Parallel& orig)
 {
 	num_threads=orig.get_num_threads();
+        ckernel__get_kernel_matrix_parallel = orig.ckernel__get_kernel_matrix_parallel_enabled();
+        libsvmkernel__compute_q_parallel_parallel = orig.libsvmkernel__compute_q_parallel_parallel_enabled();
+
 	m_refcount = new RefCount();
 #ifdef HAVE_OPENMP
 	omp_set_dynamic(0);

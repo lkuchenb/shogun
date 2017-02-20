@@ -66,7 +66,21 @@ public:
 	 */
 	int32_t unref();
 
+        bool ckernel__get_kernel_matrix_parallel_enabled() const { return ckernel__get_kernel_matrix_parallel; }
+
+        void set_ckernel__get_kernel_matrix_parallel(bool value) { ckernel__get_kernel_matrix_parallel = value; }
+
+        bool libsvmkernel__compute_q_parallel_parallel_enabled() const { return libsvmkernel__compute_q_parallel_parallel; }
+
+        void set_libsvmkernel__compute_q_parallel_parallel(bool value) { libsvmkernel__compute_q_parallel_parallel = value; }
+
 private:
+        /// CKernel::get_kernel_matrix() parallel
+        bool ckernel__get_kernel_matrix_parallel;
+
+        /// LibSVMKernel::compute_Q_parallel() parallel
+        bool libsvmkernel__compute_q_parallel_parallel;
+
 	/** ref counter */
 	RefCount* m_refcount;
 
