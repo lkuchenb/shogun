@@ -16,6 +16,8 @@
 #include <shogun/mathematics/Statistics.h>
 #include <shogun/evaluation/CrossValidationOutput.h>
 #include <shogun/lib/List.h>
+#include <shogun/kernel/CombinedKernel.h>
+#include <shogun/classifier/mkl/MKLClassification.h>
 
 using namespace shogun;
 
@@ -263,6 +265,14 @@ float64_t CCrossValidation::evaluate_one_run()
 		 * (otherwise changing subset of features will kaboom the classifier) */
 		m_machine->set_store_model_features(true);
 
+		SGMatrix<float64_t> * subkernel_weight_matrix = nullptr;
+		if (m_machine->get_classifier_type() == CT_MKLCLASSIFICATION)
+		{
+			CMKLClassification * mkl_machine = (CMKLClassification*) m_machine;
+			CCombinedKernel * comb_kernel = (CCombinedKernel*) mkl_machine->get_kernel();
+			subkernel_weight_matrix = new SGMatrix<float64_t>(comb_kernel->get_num_subkernels(), num_subsets);
+		}
+
 		/* do actual cross-validation */
 		#pragma omp parallel for
 		for (index_t i=0; i <num_subsets; ++i)
@@ -332,6 +342,14 @@ float64_t CCrossValidation::evaluate_one_run()
 				current=(CCrossValidationOutput*)
 						m_xval_outputs->get_next_element();
 			}
+			if (m_machine->get_classifier_type() == CT_MKLCLASSIFICATION)
+			{
+				CMKLClassification * mkl_machine = (CMKLClassification*) machine;
+				CCombinedKernel * comb_kernel = (CCombinedKernel*) mkl_machine->get_kernel();
+				SGVector<float64_t> sk_weights = comb_kernel->get_subkernel_weights();
+				for (index_t k_idx=0; k_idx<comb_kernel->get_num_subkernels(); ++k_idx)
+					(*subkernel_weight_matrix)(k_idx, i) = sk_weights[k_idx];
+			}
 			}
 
 			features->remove_subset();
@@ -390,6 +408,23 @@ float64_t CCrossValidation::evaluate_one_run()
 				SG_UNREF(labels);
 			}
 			SG_UNREF(result_labels);
+		}
+
+		if (m_machine->get_classifier_type() == CT_MKLCLASSIFICATION)
+		{
+			CMKLClassification * mkl_machine = (CMKLClassification*) m_machine;
+			CCombinedKernel * comb_kernel = (CCombinedKernel*) mkl_machine->get_kernel();
+			SGVector<float64_t> mean_weights(comb_kernel->get_num_subkernels());
+			for (index_t k_idx=0; k_idx<comb_kernel->get_num_subkernels(); ++k_idx)
+			{
+				SGVector<float64_t> weights = subkernel_weight_matrix->get_row_vector(k_idx);
+				mean_weights[k_idx] = CStatistics::mean(weights);
+			}
+			float64_t sum = SGVector<float64_t>::sum(mean_weights);
+			for (index_t i=0; i<mean_weights.vlen; ++i)
+				mean_weights[i] = mean_weights[i] / sum;
+			comb_kernel->set_subkernel_weights(mean_weights);
+			delete subkernel_weight_matrix;
 		}
 
 		SG_DEBUG("done unlocked evaluation\n", get_name())
