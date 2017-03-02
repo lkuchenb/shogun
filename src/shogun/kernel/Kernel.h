@@ -204,7 +204,7 @@ class CKernel : public CSGObject
 		 * @param idx_b index of feature vector b
 		 * @return computed kernel function
 		 */
-		inline float64_t kernel(int32_t idx_a, int32_t idx_b)
+		virtual float64_t kernel(int32_t idx_a, int32_t idx_b)
 		{
 			REQUIRE(idx_a>=0 && idx_b>=0 && idx_a<num_lhs && idx_b<num_rhs,
 				"%s::kernel(): index out of Range: idx_a=%d/%d idx_b=%d/%d\n",

@@ -67,6 +67,20 @@ public:
 	/** destructor */
 	virtual ~CGaussianKernel();
 
+	float64_t kernel(int32_t idx_a, int32_t idx_b) override
+	{
+	    return kernel_const(idx_a, idx_b);
+	}
+
+	float64_t kernel_const(int32_t idx_a, int32_t idx_b) const
+	{
+	    REQUIRE(idx_a>=0 && idx_b>=0 && idx_a<num_lhs && idx_b<num_rhs,
+		    "%s::kernel(): index out of Range: idx_a=%d/%d idx_b=%d/%d\n",
+		    get_name(), idx_a,num_lhs, idx_b,num_rhs);
+
+	    return normalizer->normalize(compute_const(idx_a, idx_b), idx_a, idx_b);
+	}
+
 	/** @param kernel is casted to CGaussianKernel, error if not possible
 	 * is SG_REF'ed
 	 * @return casted CGaussianKernel object
@@ -145,6 +159,8 @@ protected:
 	 * @return computed kernel function at indices a,b
 	 */
 	virtual float64_t compute(int32_t idx_a, int32_t idx_b);
+
+	virtual float64_t compute_const(int32_t idx_a, int32_t idx_b) const;
 
 	/** Can (optionally) be overridden to post-initialize some member
 	 * variables which are not PARAMETER::ADD'ed. Make sure that at first

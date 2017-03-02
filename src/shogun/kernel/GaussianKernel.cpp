@@ -128,6 +128,11 @@ SGMatrix<float64_t> CGaussianKernel::get_parameter_gradient(const TParameter* pa
 
 float64_t CGaussianKernel::compute(int32_t idx_a, int32_t idx_b)
 {
+    return compute_const(idx_a, idx_b);
+}
+
+float64_t CGaussianKernel::compute_const(int32_t idx_a, int32_t idx_b) const
+{
     float64_t result=distance(idx_a, idx_b);
     return CMath::exp(-result);
 }
